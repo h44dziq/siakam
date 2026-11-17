@@ -56,9 +56,3 @@ Ganti atau hapus akun ini sebelum dipakai sungguhan (seeder di `database/seeders
 - Status hanya maju: Dilaporkan, Diproses, Selesai. Semua perubahan tercatat di `report_status_histories`
 - Foto disimpan di disk private dan hanya bisa dibuka lewat route `/foto/{id}` setelah login
 
-## Asumsi yang perlu dicek
-
-- Domain email kampus (`CAMPUS_EMAIL_DOMAIN`) dan NIM diambil dari bagian depan email bila berupa angka.
-- Hanya mahasiswa yang membuat laporan. OB menangani laporan.
-- Superadmin dibuat lewat seeder. Tidak ada fitur hapus akun.
-- Belum ada: notifikasi update laporan (P3), foto profil.
