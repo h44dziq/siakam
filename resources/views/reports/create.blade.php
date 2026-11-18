@@ -1,0 +1,52 @@
+@extends('layouts.app')
+@section('title', 'Buat laporan')
+@section('content')
+<div class="head">
+    <div>
+        <h1>Buat laporan</h1>
+        <p>Semakin jelas lokasi dan deskripsinya, semakin cepat petugas menemukan masalahnya.</p>
+    </div>
+</div>
+<form class="panel pad" method="POST" action="{{ route('mahasiswa.laporan.store') }}" enctype="multipart/form-data" style="max-width:760px">
+    @csrf
+    <div class="form-grid">
+        <div class="field">
+            <label for="building_id">Gedung</label>
+            <select id="building_id" name="building_id" data-building required>
+                <option value="">Pilih gedung</option>
+                @foreach ($buildings as $b)
+                    <option value="{{ $b->id }}" @selected(old('building_id') == $b->id)>{{ $b->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="field">
+            <label for="room_id">Ruangan</label>
+            <select id="room_id" name="room_id" data-room data-rooms="{{ json_encode($roomsByBuilding) }}" data-selected="{{ old('room_id') }}" required disabled>
+                <option value="">Pilih gedung dulu</option>
+            </select>
+        </div>
+        <div class="field full">
+            <label for="category_id">Jenis masalah</label>
+            <select id="category_id" name="category_id" required>
+                <option value="">Pilih jenis masalah</option>
+                @foreach ($categories as $c)
+                    <option value="{{ $c->id }}" @selected(old('category_id') == $c->id)>{{ $c->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="field full">
+            <label for="description">Apa yang terjadi?</label>
+            <textarea id="description" name="description" required minlength="10" maxlength="1000" placeholder="Contoh: AC di barisan depan menyala sejak pagi, ruangan kosong.">{{ old('description') }}</textarea>
+        </div>
+        <div class="field full">
+            <label for="photo">Foto bukti (opsional)</label>
+            <input id="photo" type="file" name="photo" accept="image/*">
+            <span class="hint">JPG atau PNG, maksimal 4 MB.</span>
+        </div>
+    </div>
+    <div class="actions" style="margin-top:24px">
+        <button class="btn btn-primary">Kirim laporan</button>
+        <a class="btn" href="{{ route('mahasiswa.dashboard') }}">Batal</a>
+    </div>
+</form>
+@endsection
