@@ -78,6 +78,11 @@ class Report extends Model
         });
     }
 
+    public function daysOpen(): int
+    {
+        return (int) $this->created_at->diffInDays(now());
+    }
+
     public function scopeFilter(Builder $query, array $f): Builder
     {
         return $query
@@ -85,6 +90,9 @@ class Report extends Model
             ->when($f['q'] ?? null, fn ($q, $v) => $q->whereHas('user', fn ($u) => $u->where(
                 fn ($w) => $w->where('name', 'like', "%{$v}%")->orWhere('nim', 'like', "%{$v}%")
             )))
+            ->when($f['building_id'] ?? null, fn ($q, $v) => $q->whereHas('room', fn ($r) => $r->where('building_id', $v)))
+            ->when($f['room_id'] ?? null, fn ($q, $v) => $q->where('room_id', $v))
+            ->when($f['category_id'] ?? null, fn ($q, $v) => $q->where('category_id', $v))
             ->when($f['from'] ?? null, fn ($q, $v) => $q->whereDate('created_at', '>=', $v))
             ->when($f['to'] ?? null, fn ($q, $v) => $q->whereDate('created_at', '<=', $v))
             ->when($f['month'] ?? null, fn ($q, $v) => $q->whereMonth('created_at', $v))

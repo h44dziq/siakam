@@ -11,12 +11,28 @@ use Illuminate\Http\Request;
 
 class MasterDataController extends Controller
 {
-    public function index(Request $request)
+    public function buildings()
     {
-        return view('admin.master', [
-            'tab' => $request->input('tab') === 'kategori' ? 'kategori' : 'fasilitas',
-            'buildings' => Building::with('rooms')->orderBy('name')->get(),
-            'categories' => Category::orderBy('name')->get(),
+        return view('admin.buildings', [
+            'buildings' => Building::withCount('rooms')->orderBy('name')->get(),
+        ]);
+    }
+
+    public function rooms(Request $request)
+    {
+        return view('admin.rooms', [
+            'buildings' => Building::orderBy('name')->get(),
+            'rooms' => Room::with('building')->withCount('reports')
+                ->when($request->building_id, fn ($q, $v) => $q->where('building_id', $v))
+                ->orderBy('name')->get(),
+            'buildingId' => $request->building_id,
+        ]);
+    }
+
+    public function categories()
+    {
+        return view('admin.categories', [
+            'categories' => Category::withCount('reports')->orderBy('name')->get(),
         ]);
     }
 
@@ -39,16 +55,24 @@ class MasterDataController extends Controller
         return $this->safeDelete($building, 'Gedung masih punya ruangan atau laporan, jadi tidak bisa dihapus.');
     }
 
-    public function storeRoom(Request $request, Building $building)
+    public function storeRoom(Request $request)
     {
-        $building->rooms()->create($request->validate(['name' => ['required', 'string', 'max:100']]));
+        $data = $request->validate([
+            'building_id' => ['required', 'exists:buildings,id'],
+            'name' => ['required', 'string', 'max:100'],
+        ]);
+
+        Room::create($data);
 
         return back()->with('ok', 'Ruangan ditambahkan.');
     }
 
     public function updateRoom(Request $request, Room $room)
     {
-        $room->update($request->validate(['name' => ['required', 'string', 'max:100']]));
+        $room->update($request->validate([
+            'building_id' => ['required', 'exists:buildings,id'],
+            'name' => ['required', 'string', 'max:100'],
+        ]));
 
         return back()->with('ok', 'Ruangan diperbarui.');
     }
@@ -62,7 +86,7 @@ class MasterDataController extends Controller
     {
         Category::create($request->validate(['name' => ['required', 'string', 'max:100']]));
 
-        return redirect()->route('admin.master', ['tab' => 'kategori'])->with('ok', 'Kategori ditambahkan.');
+        return back()->with('ok', 'Kategori ditambahkan.');
     }
 
     public function updateCategory(Request $request, Category $category)

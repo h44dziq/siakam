@@ -30,21 +30,26 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return in_array($this->role, ['admin', 'superadmin']);
+        return $this->role === 'admin';
+    }
+
+    public function isPemimpin(): bool
+    {
+        return $this->role === 'pemimpin';
     }
 
     public function homeRoute(): string
     {
         return match ($this->role) {
             'mahasiswa' => 'mahasiswa.dashboard',
-            'ob' => 'ob.dashboard',
+            'pemimpin' => 'pemimpin.dashboard',
             default => 'admin.dashboard',
         };
     }
 
     public function roleLabel(): string
     {
-        return ['mahasiswa' => 'Mahasiswa', 'ob' => 'Petugas OB', 'admin' => 'Admin', 'superadmin' => 'Superadmin'][$this->role] ?? $this->role;
+        return ['mahasiswa' => 'Mahasiswa', 'admin' => 'Admin', 'pemimpin' => 'Pemimpin'][$this->role] ?? $this->role;
     }
 
     public function initials(): string

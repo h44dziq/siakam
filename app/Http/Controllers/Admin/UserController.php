@@ -12,29 +12,34 @@ class UserController extends Controller
 {
     public function index(Request $request, string $tab = 'mahasiswa')
     {
-        abort_unless(in_array($tab, ['mahasiswa', 'ob', 'admin']), 404);
-        abort_if($tab === 'admin' && $request->user()->role !== 'superadmin', 403);
+        abort_unless(in_array($tab, ['mahasiswa', 'admin']), 404);
 
         $users = User::where('role', $tab)
-            ->when($request->q, fn ($q, $v) => $q->where(fn ($w) => $w->where('name', 'like', "%{$v}%")->orWhere('email', 'like', "%{$v}%")->orWhere('nim', 'like', "%{$v}%")))
-            ->orderBy('name')->paginate(15)->withQueryString();
+            ->when($request->q, fn ($q, $v) => $q->where(fn ($w) => $w
+                ->where('name', 'like', "%{$v}%")
+                ->orWhere('email', 'like', "%{$v}%")
+                ->orWhere('nim', 'like', "%{$v}%")))
+            ->orderBy('name')->paginate(12)->withQueryString();
 
-        return view('admin.users', compact('users', 'tab'));
+        return view('admin.users', [
+            'users' => $users,
+            'tab' => $tab,
+            'counts' => User::selectRaw('role, count(*) as total')->groupBy('role')->pluck('total', 'role'),
+        ]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'role' => ['required', Rule::in(['ob', 'admin'])],
+            'role' => ['required', Rule::in(['admin'])],
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
-        abort_if($data['role'] === 'admin' && $request->user()->role !== 'superadmin', 403);
 
         User::create($data + ['is_active' => true]);
 
-        return back()->with('ok', 'Akun dibuat.');
+        return back()->with('ok', 'Akun admin dibuat.');
     }
 
     public function update(Request $request, User $user)
@@ -65,11 +70,10 @@ class UserController extends Controller
         return back()->with('ok', $user->is_active ? 'Akun diaktifkan.' : 'Akun dinonaktifkan.');
     }
 
-    /** Admin hanya mengelola mahasiswa & OB; akun admin hanya oleh superadmin; tidak ada aksi ke diri sendiri. */
+    /** Admin mengelola mahasiswa & admin lain; akun pemimpin dan diri sendiri tidak bisa diubah. */
     private function authorizeTarget(Request $request, User $target): void
     {
-        $me = $request->user();
-        abort_if($target->id === $me->id || $target->role === 'superadmin', 403);
-        abort_if($target->role === 'admin' && $me->role !== 'superadmin', 403);
+        abort_if($target->id === $request->user()->id, 403);
+        abort_if($target->role === 'pemimpin', 403);
     }
 }

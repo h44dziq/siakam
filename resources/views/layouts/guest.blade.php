@@ -4,22 +4,39 @@
 @include('layouts.head')
 </head>
 <body>
-<div class="guest-grid">
-    <section class="guest-intro">
-        <a class="brand" href="{{ route('login') }}"><span class="mark"></span>siakam</a>
-        <div>
-            <h1>Lapor kerusakan fasilitas, pantau sampai tuntas.</h1>
-            <p class="lead">Satu tempat untuk laporan lab, ruang kelas, dan toilet di FIK. Petugas langsung tahu lokasinya, Anda tahu progresnya.</p>
-            <ol class="flow">
-                <li class="s-reported"><span class="track"><i class="f"></i><i></i><i></i></span><div><b>Dilaporkan</b><span>Pilih gedung, ruangan, dan kirim foto bukti.</span></div></li>
-                <li class="s-in_progress"><span class="track"><i class="f"></i><i class="f"></i><i></i></span><div><b>Diproses</b><span>Petugas OB mulai menangani laporan.</span></div></li>
-                <li class="s-resolved"><span class="track"><i class="f"></i><i class="f"></i><i class="f"></i></span><div><b>Selesai</b><span>Petugas mencatat tindakan yang dilakukan.</span></div></li>
+<div class="auth">
+    <section class="auth-visual">
+        <a class="auth-brand" href="{{ route('login') }}">
+            <span class="brand-mark">S</span>
+            <span class="brand-text"><b>siakam</b><small>Sistem Pelaporan Fasilitas</small></span>
+        </a>
+
+        <div class="auth-copy">
+            <span class="auth-kicker"><x-icon name="spark" :size="13" /> Fakultas Ilmu Komputer</span>
+            <h1>Fasilitas kampus yang bermasalah, kini terlacak sampai tuntas.</h1>
+            <p>Laporkan kerusakan dan pemborosan listrik dalam satu alur yang jelas — dari laporan mahasiswa, penanganan admin, hingga evaluasi pimpinan.</p>
+
+            <ol class="auth-flow">
+                <li>
+                    <span class="num">1</span>
+                    <div><b>Laporkan</b><span>Pilih gedung, ruangan, kategori, dan lampirkan foto bukti.</span></div>
+                </li>
+                <li>
+                    <span class="num">2</span>
+                    <div><b>Ditangani</b><span>Admin memverifikasi dan mencatat setiap tindakan penanganan.</span></div>
+                </li>
+                <li>
+                    <span class="num">3</span>
+                    <div><b>Dievaluasi</b><span>Pimpinan memantau tren, kinerja, dan area yang perlu perhatian.</span></div>
+                </li>
             </ol>
         </div>
-        <p class="fine small">Fakultas Ilmu Komputer</p>
+
+        <p class="auth-foot">© {{ now()->year }} SIAKAM · Universitas Pembangunan Nasional Veteran Jakarta</p>
     </section>
-    <section class="guest-form">
-        <div class="box">
+
+    <section class="auth-form">
+        <div class="auth-card">
             @yield('content')
         </div>
     </section>

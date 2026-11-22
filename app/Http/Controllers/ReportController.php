@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Building;
 use App\Models\Category;
 use App\Models\Report;
+use App\Support\ReportStats;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -12,14 +13,29 @@ use Illuminate\Validation\Rule;
 
 class ReportController extends Controller
 {
-    /** Dashboard mahasiswa: riwayat laporan milik sendiri. */
+    /** Dashboard mahasiswa: ringkasan laporan milik sendiri. */
     public function index(Request $request)
+    {
+        $mine = Report::where('user_id', $request->user()->id);
+        $stats = ReportStats::statuses($mine);
+
+        $reports = (clone $mine)->with(['room.building', 'category'])
+            ->latest()->limit(6)->get();
+
+        return view('mahasiswa.dashboard', compact('stats', 'reports'));
+    }
+
+    public function history(Request $request)
     {
         $reports = Report::with(['room.building', 'category'])
             ->where('user_id', $request->user()->id)
-            ->latest()->paginate(10);
+            ->when($request->status, fn ($q, $v) => $q->where('status', $v))
+            ->latest()->paginate(10)->withQueryString();
 
-        return view('mahasiswa.dashboard', compact('reports'));
+        return view('mahasiswa.riwayat', [
+            'reports' => $reports,
+            'status' => $request->status,
+        ]);
     }
 
     public function create()
@@ -82,18 +98,6 @@ class ReportController extends Controller
         $report->load(['room.building', 'category', 'user', 'histories.author']);
 
         return view('reports.show', compact('report'));
-    }
-
-    public function updateStatus(Request $request, Report $report)
-    {
-        $data = $request->validate([
-            'status' => ['required', Rule::in(array_keys(Report::LABELS))],
-            'note' => ['nullable', 'string', 'max:500'],
-        ]);
-
-        $report->advance($request->user(), $data['status'], $data['note'] ?? null);
-
-        return back()->with('ok', 'Status diperbarui menjadi '.$report->fresh()->label().'.');
     }
 
     /** Foto bukti: hanya lewat controller, tidak ada URL publik. */

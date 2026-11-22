@@ -3,38 +3,28 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Report;
+use App\Models\ReportStatusHistory;
+use App\Support\ReportStats;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $f = [
-            'month' => $request->input('month'),
-            'year' => $request->input('year', now()->year),
-        ];
-
-        $total = Report::filter($f)->count();
-        $byStatus = Report::filter($f)->select('status', DB::raw('count(*) as c'))->groupBy('status')->pluck('c', 'status');
-
-        $topRooms = Report::filter($f)
-            ->select('room_id', DB::raw('count(*) as c'))
-            ->groupBy('room_id')->orderByDesc('c')->limit(3)
-            ->with('room.building')->get();
-
-        $byCategory = Report::filter($f)
-            ->select('category_id', DB::raw('count(*) as c'))
-            ->groupBy('category_id')->orderByDesc('c')
-            ->with('category')->get();
+        $month = $request->integer('month') ?: null;
+        $year = $request->integer('year') ?: now()->year;
+        $base = ReportStats::period($month, $year);
 
         return view('admin.dashboard', [
-            'f' => $f,
-            'total' => $total,
-            'byStatus' => $byStatus,
-            'topRooms' => $topRooms,
-            'byCategory' => $byCategory,
+            'stats' => ReportStats::statuses($base),
+            'trend' => ReportStats::trend($year),
+            'byCategory' => ReportStats::byCategory($base),
+            'byBuilding' => ReportStats::byBuilding($base),
+            'topRooms' => ReportStats::topRooms($base, 3),
+            'recent' => (clone $base)->with(['room.building', 'category', 'user'])->latest()->limit(6)->get(),
+            'activity' => ReportStatusHistory::with(['author', 'report.category'])->latest()->limit(6)->get(),
+            'month' => $month,
+            'year' => $year,
             'years' => range(now()->year, now()->year - 3),
         ]);
     }
