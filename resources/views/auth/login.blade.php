@@ -25,11 +25,4 @@
 </form>
 
 <p class="auth-switch">Mahasiswa belum punya akun? <a href="{{ route('register') }}">Daftar sekarang</a></p>
-
-<div class="auth-note">
-    <b>Akun demo</b> — password <span class="mono">password</span><br>
-    Pemimpin: <span class="mono">pemimpin@siakam.test</span><br>
-    Admin: <span class="mono">admin@siakam.test</span><br>
-    Mahasiswa: <span class="mono">2310512001@mahasiswa.upnvj.ac.id</span>
-</div>
 @endsection

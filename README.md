@@ -34,16 +34,18 @@ php artisan serve    # terminal 2
 Buka http://127.0.0.1:8000. Database bawaan Laravel adalah SQLite, jadi tidak perlu setup DB.
 Kalau mau MySQL/PostgreSQL, ubah bagian DB di `.env` sebelum `migrate`.
 
-## Akun demo (password: `password`)
+## Akun Demo (Development & Testing)
 
-| Role | Email |
-|---|---|
-| Superadmin | superadmin@siakam.test |
-| Admin | admin@siakam.test |
-| OB | ob@siakam.test |
-| Mahasiswa | 2310512001@mahasiswa.upnvj.ac.id |
+Akun berikut dibuat oleh `database/seeders/DatabaseSeeder.php` dan **hanya untuk pengembangan serta pengujian lokal**. Jangan dipakai di produksi, jangan tampilkan kredensialnya di halaman publik, dan ganti atau hapus akun ini sebelum aplikasi dipakai sungguhan.
 
-Ganti atau hapus akun ini sebelum dipakai sungguhan (seeder di `database/seeders/DatabaseSeeder.php`).
+| Role | Email | Password |
+|---|---|---|
+| Pemimpin | pemimpin@siakam.test | password |
+| Admin | admin@siakam.test | password |
+| Mahasiswa | 2310512001@mahasiswa.upnvj.ac.id | password |
+| Mahasiswa | 2310512002@mahasiswa.upnvj.ac.id | password |
+
+Jalankan `php artisan migrate --seed` untuk membuatnya.
 
 ## Yang sudah ada (sesuai PRD)
 

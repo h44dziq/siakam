@@ -23,7 +23,7 @@
     <div class="field">
         <label for="email">Email kampus</label>
         <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="email"
-               placeholder="{{ '2310512001@'.config('siakam.campus_email_domain') }}">
+               placeholder="{{ '2310512345@'.config('siakam.campus_email_domain') }}">
         <span class="field-hint">Gunakan email mahasiswa resmi UPN Veteran Jakarta.</span>
     </div>
     <div class="field">
